@@ -848,7 +848,9 @@ document.getElementById('apiKeyBtn').addEventListener('click', () => {
   document.getElementById('apiKeyModal').classList.add('show');
 });
 document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
-  const v = document.getElementById('apiKeyInput').value.trim();
+  // Strip non-ASCII (smart quotes, zero-width spaces, etc) and whitespace
+  const raw = document.getElementById('apiKeyInput').value;
+  const v = raw.replace(/[^\x20-\x7E]/g, '').trim();
   if (v) localStorage.setItem(APIKEY_KEY, v);
   document.getElementById('apiKeyModal').classList.remove('show');
   refreshApiKeyBtn();
@@ -936,7 +938,7 @@ function escapeHtml(s) {
 
 /* ───── Anthropic API call ───── */
 async function callClaude(userPrompt) {
-  const apiKey = getApiKey();
+  const apiKey = (getApiKey() || '').replace(/[^\x20-\x7E]/g, '').trim();
   if (!apiKey) throw new Error('Add your Anthropic API key first (top right).');
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
