@@ -1009,7 +1009,7 @@ document.getElementById('generateSubjectsBtn').addEventListener('click', async (
     const isRepurpose = state.mode === 'repurpose';
     const prompt = `${FORMAT_INSTRUCTIONS[state.format]}
 
-${isRepurpose ? 'Kenny is repurposing this LinkedIn post as a longer newsletter:' : 'Kenny\\'s seed:'}
+${isRepurpose ? 'Kenny is repurposing this LinkedIn post as a longer newsletter:' : "Kenny's seed:"}
 """
 ${seed}
 """
