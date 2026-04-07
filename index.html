@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Studio — Go To 11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #9439bf;
+    --purple-dark: #7a2fa3;
+    --purple-faint: rgba(148, 57, 191, 0.08);
+    --purple-ring: rgba(148, 57, 191, 0.18);
+    --light-purple: #bfb1c4;
+    --sand: #f4d4b7;
+    --grey: #66615c;
+    --offwhite: #ebeaeb;
+    --bg: #f7f6f7;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.10);
+    --border-strong: rgba(0,0,0,0.18);
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5560;
+    --text-muted: #9490a0;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --green-border: #86efac;
+    --red: #b91c1c;
+    --gold: #a16207;
+    --gold-bg: #fefce8;
+    --gold-border: #fde047;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'PT Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--purple);
+    letter-spacing: -0.01em;
+  }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .api-key-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .api-key-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .api-key-btn.connected { color: var(--green); border-color: var(--green-border); }
+
+  .page-title { text-align: center; margin-bottom: 2rem; }
+  .page-title h1 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+  .page-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+  .main { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  /* Step indicator */
+  .steps { display: flex; align-items: center; margin-bottom: 2.5rem; }
+  .step-node { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: all 0.25s ease;
+  }
+  .step-circle.active {
+    background: var(--purple); border-color: var(--purple); color: #fff;
+    box-shadow: 0 0 0 4px var(--purple-ring);
+  }
+  .step-circle.done { background: var(--purple); border-color: var(--purple); color: #fff; opacity: 0.45; }
+  .step-name {
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'Nunito', sans-serif; font-weight: 600;
+    white-space: nowrap; letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .step-name.active { color: var(--purple); }
+  .step-connector { flex: 1; height: 1px; background: var(--border); margin: 0 8px 18px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-card);
+  }
+  .card + .card { margin-top: 1.25rem; }
+
+  .section-label {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 11px; color: var(--text-muted);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field { margin-bottom: 1.5rem; }
+  .field-label {
+    display: block;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-primary); margin-bottom: 6px;
+  }
+  .field-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+
+  textarea, input[type="text"], input[type="password"], input[type="number"], input[type="date"], input[type="url"], select {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 15px;
+    font-family: 'PT Sans', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+    line-height: 1.6;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  textarea:focus, input:focus, select:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px var(--purple-ring);
+    background: var(--surface);
+  }
+  input[type="number"], input[type="date"] { resize: none; }
+
+  /* Source mode toggle */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1.25rem; }
+  .mode-card {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 14px 12px;
+    cursor: pointer;
+    background: var(--bg);
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .mode-card:hover { border-color: var(--light-purple); background: var(--surface); }
+  .mode-card.selected { border-color: var(--purple); background: var(--purple-faint); }
+  .mode-card-name { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; color: var(--text-primary); }
+  .mode-card.selected .mode-card-name { color: var(--purple); }
+  .mode-card-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.35; }
+
+  /* Format grid */
+  .format-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .format-card {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg);
+    user-select: none;
+  }
+  .format-card:hover { border-color: var(--light-purple); background: var(--surface); }
+  .format-card.selected { border-color: var(--purple); background: var(--purple-faint); }
+  .format-card-name { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; color: var(--text-primary); }
+  .format-card.selected .format-card-name { color: var(--purple); }
+  .format-card-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+  .format-full { grid-column: span 2; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--purple); border-color: var(--purple); color: #fff; }
+  .btn-primary:hover { background: var(--purple-dark); }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 1.5rem; }
+
+  /* Loader / error */
+  .loader {
+    display: none; align-items: center; gap: 10px;
+    margin-top: 1rem; padding: 12px 16px;
+    background: var(--bg);
+    border-radius: var(--radius-md);
+    font-size: 13px; color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .loader.show { display: flex; }
+  .spinner {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--light-purple);
+    border-top-color: var(--purple);
+    animation: spin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error {
+    display: none;
+    margin-top: 10px; padding: 10px 14px;
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-sm);
+    font-size: 13px; color: #b91c1c;
+  }
+  .success {
+    display: none;
+    margin-top: 10px; padding: 10px 14px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: var(--radius-sm);
+    font-size: 13px; color: var(--green);
+  }
+
+  /* Subject line cards */
+  .subject-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 10px;
+    background: var(--bg);
+  }
+  .subject-card:hover { border-color: var(--purple); background: var(--surface); }
+  .subject-card.selected { border-color: var(--purple); border-width: 1.5px; background: var(--purple-faint); }
+  .subject-tag {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--purple); margin-bottom: 7px;
+  }
+  .subject-line { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.4; font-family: 'Nunito', sans-serif; }
+  .subject-preview { font-size: 13px; color: var(--text-secondary); margin-top: 5px; line-height: 1.45; }
+  .subject-counts { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-family: 'Nunito', sans-serif; font-weight: 600; }
+
+  /* Outline section */
+  .outline-section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: var(--bg);
+  }
+  .outline-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .outline-section-title {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--purple);
+  }
+  .outline-section-text {
+    width: 100%;
+    border: none; background: transparent;
+    font-family: 'PT Sans', sans-serif; font-size: 14px;
+    color: var(--text-primary); padding: 4px 0;
+    line-height: 1.55; resize: none;
+  }
+  .outline-section-text:focus { outline: none; }
+
+  /* Draft editor */
+  .draft-section {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    background: var(--surface);
+  }
+  .draft-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .draft-section-title {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--purple);
+  }
+  .draft-section-meta { font-size: 11px; color: var(--text-muted); font-family: 'Nunito', sans-serif; font-weight: 600; }
+  .draft-section-text {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg);
+    line-height: 1.65;
+    resize: vertical;
+    outline: none;
+    min-height: 60px;
+  }
+  .draft-section-text:focus { border-color: var(--purple); box-shadow: 0 0 0 2px var(--purple-ring); background: var(--surface); }
+
+  /* Word count */
+  .wc { font-size: 12px; color: var(--text-muted); font-family: 'Nunito', sans-serif; font-weight: 600; }
+  .wc.good { color: var(--green); }
+  .wc.over { color: var(--red); }
+
+  /* Checklist */
+  .checklist { margin-top: 1.5rem; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: var(--purple);
+    width: 15px; height: 15px;
+    flex-shrink: 0; cursor: pointer;
+  }
+  .check-item span { font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
+  .check-item.done span { color: var(--text-muted); text-decoration: line-through; }
+
+  /* Tracker */
+  .tracker { margin-top: 3rem; }
+  .tracker-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .tracker-header h2 {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 1.1rem; color: var(--text-primary);
+  }
+  .summary-bar {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .summary-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+  }
+  .summary-cell-label {
+    font-size: 10px; font-family: 'Nunito', sans-serif; font-weight: 700;
+    color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .summary-cell-value {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 18px; color: var(--text-primary); margin-top: 4px;
+  }
+
+  table.tracker-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .tracker-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg);
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .tracker-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .tracker-row { cursor: pointer; transition: background 0.1s; }
+  .tracker-row:hover { background: var(--bg); }
+  .tracker-row.flag-high td:first-child { border-left: 3px solid var(--green); }
+  .tracker-row.flag-exceptional td:first-child { border-left: 3px solid var(--gold); }
+  .tracker-row.flag-conversation td:first-child { border-left: 3px solid var(--purple); }
+
+  .row-detail {
+    background: var(--bg);
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .row-detail h4 { font-family: 'Nunito',sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; margin-top: 12px; }
+  .row-detail h4:first-child { margin-top: 0; }
+
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 14px;
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+  }
+
+  .source-context {
+    background: var(--purple-faint);
+    border: 1px solid var(--purple-ring);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 1rem;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .source-context strong { color: var(--purple); font-family: 'Nunito', sans-serif; font-weight: 700; }
+
+  .li-post-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+  }
+  .li-post-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .li-post-item:last-child { border-bottom: none; }
+  .li-post-item:hover { background: var(--surface); }
+  .li-post-item.selected { background: var(--purple-faint); }
+  .li-post-item-preview { font-size: 13px; color: var(--text-primary); line-height: 1.45; }
+  .li-post-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-family: 'Nunito', sans-serif; font-weight: 600; }
+
+  .csv-import {
+    background: var(--bg);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 1rem;
+  }
+  .csv-import-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .csv-import label { font-size: 12px; font-family: 'Nunito', sans-serif; font-weight: 700; color: var(--text-secondary); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .modal h3 { font-family: 'Nunito',sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 12px; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .summary-bar { grid-template-columns: 1fr 1fr; }
+    .mode-grid { grid-template-columns: 1fr; }
+    .main { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a class="logo" href="https://goto11-tools.netlify.app">
+    <span class="logo-text">GO TO 11</span>
+  </a>
+  <div class="header-right">
+    <button id="apiKeyBtn" class="api-key-btn">Add API key</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">
+    <h1>Newsletter Studio</h1>
+    <p>Write, repurpose, and track your newsletter sends</p>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="steps" id="stepIndicator"></div>
+
+  <!-- ────────── STEP 1 ────────── -->
+  <section id="step1" class="card">
+    <div class="section-label">Step 1 of 4</div>
+
+    <div class="field">
+      <label class="field-label">Where is this newsletter coming from?</label>
+      <div class="mode-grid">
+        <div class="mode-card selected" data-mode="fresh">
+          <div class="mode-card-name">Fresh idea</div>
+          <div class="mode-card-desc">Start from scratch</div>
+        </div>
+        <div class="mode-card" data-mode="repurpose">
+          <div class="mode-card-name">Repurpose LinkedIn</div>
+          <div class="mode-card-desc">Expand a published post</div>
+        </div>
+        <div class="mode-card" data-mode="expand">
+          <div class="mode-card-name">Expand a topic</div>
+          <div class="mode-card-desc">Framework or pattern</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fresh idea input -->
+    <div id="freshInput" class="field">
+      <label class="field-label">What's on your mind?</label>
+      <textarea id="seedText" rows="4" placeholder="A pattern you're noticing in client work, an observation from a recent meeting, a framework you want to teach..."></textarea>
+      <div class="field-hint">One or two sentences is enough. The studio will build from here.</div>
+    </div>
+
+    <!-- Repurpose input -->
+    <div id="repurposeInput" class="field hidden">
+      <label class="field-label">Pick a LinkedIn post to expand</label>
+      <div id="liPostList" class="li-post-list">
+        <div class="empty-state" style="padding:1.25rem">Loading posts from the LinkedIn Studio...</div>
+      </div>
+      <div class="field-hint">Reads from the LinkedIn Studio in this browser. If empty, paste a post below instead.</div>
+      <textarea id="pastedLiPost" rows="4" placeholder="Or paste a LinkedIn post here..." style="margin-top:10px"></textarea>
+    </div>
+
+    <!-- Expand input -->
+    <div id="expandInput" class="field hidden">
+      <label class="field-label">Topic, framework, or pattern</label>
+      <textarea id="expandText" rows="4" placeholder="e.g. The Velocity Ladder, why VPs lose deals at the close, how to handle a hostile question without flinching..."></textarea>
+    </div>
+
+    <div class="field">
+      <label class="field-label">Newsletter format</label>
+      <div class="format-grid">
+        <div class="format-card selected" data-format="adviser">
+          <div class="format-card-name">Adviser Letter</div>
+          <div class="format-card-desc">Default. Cold open, reframe, pattern, practical move.</div>
+        </div>
+        <div class="format-card" data-format="framework">
+          <div class="format-card-name">Framework Deep-Dive</div>
+          <div class="format-card-desc">Spotlight a model with examples and applications.</div>
+        </div>
+        <div class="format-card" data-format="client">
+          <div class="format-card-name">Client Pattern</div>
+          <div class="format-card-desc">Anonymised story to lesson, with proof.</div>
+        </div>
+        <div class="format-card" data-format="field">
+          <div class="format-card-name">Field Notes</div>
+          <div class="format-card-desc">Three short observations from the week.</div>
+        </div>
+        <div class="format-card format-full" data-format="contrarian">
+          <div class="format-card-name">Contrarian Take</div>
+          <div class="format-card-desc">Challenge a common belief and offer the better frame.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button id="generateSubjectsBtn" class="btn btn-primary">Generate subject lines →</button>
+    </div>
+    <div id="step1Loader" class="loader"><div class="spinner"></div><span>Drafting subject line options...</span></div>
+    <div id="step1Error" class="error"></div>
+  </section>
+
+  <!-- ────────── STEP 2 ────────── -->
+  <section id="step2" class="card hidden">
+    <div class="section-label">Step 2 of 4</div>
+    <h3 style="font-family:'Nunito',sans-serif;font-weight:700;font-size:18px;margin-bottom:12px">Pick a subject line</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.5">Five angles. Click to select. Edit inline if you want to tighten any of them.</p>
+    <div id="subjectCards"></div>
+    <div class="btn-row">
+      <button id="toOutlineBtn" class="btn btn-primary" disabled>Build outline →</button>
+      <button id="backTo1Btn" class="btn">Back</button>
+      <button id="regenSubjectsBtn" class="btn">Try new subjects</button>
+    </div>
+    <div id="step2Loader" class="loader"><div class="spinner"></div><span>Working...</span></div>
+    <div id="step2Error" class="error"></div>
+  </section>
+
+  <!-- ────────── STEP 3 ────────── -->
+  <section id="step3" class="card hidden">
+    <div class="section-label">Step 3 of 4</div>
+    <h3 style="font-family:'Nunito',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px">Outline</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.5">This is where you steer the depth. Edit any section, regenerate one in isolation, or approve and write the full draft.</p>
+    <div id="outlineSections"></div>
+    <div class="btn-row">
+      <button id="writeDraftBtn" class="btn btn-primary">Write the full draft →</button>
+      <button id="backTo2Btn" class="btn">Back</button>
+      <button id="regenOutlineBtn" class="btn">Regenerate outline</button>
+    </div>
+    <div id="step3Loader" class="loader"><div class="spinner"></div><span>Working...</span></div>
+    <div id="step3Error" class="error"></div>
+  </section>
+
+  <!-- ────────── STEP 4 ────────── -->
+  <section id="step4" class="card hidden">
+    <div class="section-label">Step 4 of 4</div>
+    <h3 style="font-family:'Nunito',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px">Your newsletter</h3>
+    <div id="totalWordCount" class="wc" style="margin-bottom:12px">0 words</div>
+
+    <div id="draftSections"></div>
+
+    <div class="field" style="margin-top:1rem">
+      <label class="field-label">CTA</label>
+      <select id="ctaSelect">
+        <option value="Reply trigger">Reply trigger</option>
+        <option value="Book a call">Book a call</option>
+        <option value="Resonating close">Resonating close</option>
+        <option value="No CTA">No CTA</option>
+        <option value="Register">Register</option>
+        <option value="Lead Magnet">Lead Magnet</option>
+      </select>
+    </div>
+
+    <div class="checklist">
+      <div class="section-label">Pre-publish checklist</div>
+      <!-- 12 items rendered by JS -->
+      <div id="checklistEl"></div>
+    </div>
+
+    <div class="btn-row">
+      <button id="copyBtn" class="btn btn-primary">Copy newsletter</button>
+      <button id="rewriteSectionBtn" class="btn">Rewrite a section</button>
+      <button id="tightenBtn" class="btn">Tighten</button>
+      <button id="saveTrackerBtn" class="btn">Save to tracker</button>
+      <button id="backTo3Btn" class="btn">Back</button>
+      <button id="startOverBtn" class="btn">Start over</button>
+    </div>
+    <div id="step4Loader" class="loader"><div class="spinner"></div><span>Working...</span></div>
+    <div id="step4Error" class="error"></div>
+    <div id="step4Success" class="success"></div>
+  </section>
+
+  <!-- ────────── TRACKER ────────── -->
+  <section class="tracker">
+    <div class="tracker-header">
+      <h2>Newsletter tracker</h2>
+      <div style="display:flex;gap:8px">
+        <button id="csvImportBtn" class="btn btn-sm">Import MailChimp CSV</button>
+        <button id="exportJsonBtn" class="btn btn-sm">Export</button>
+      </div>
+    </div>
+
+    <div class="csv-import hidden" id="csvImportPanel">
+      <div class="csv-import-row">
+        <label>MailChimp CSV file</label>
+        <input type="file" id="csvFile" accept=".csv">
+        <button id="csvCloseBtn" class="btn btn-sm">Close</button>
+      </div>
+      <div class="field-hint" style="margin-top:8px">Export from MailChimp: Reports → your campaign → Export as CSV. The studio matches campaigns to tracked drafts by subject line.</div>
+      <div id="csvStatus" style="margin-top:8px;font-size:12px;color:var(--text-muted)"></div>
+    </div>
+
+    <div class="summary-bar" id="summaryBar"></div>
+    <div id="trackerBody"></div>
+  </section>
+</main>
+
+<!-- API key modal -->
+<div id="apiKeyModal" class="modal-overlay">
+  <div class="modal">
+    <h3>Add your Anthropic API key</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">Stored in this browser only. Never sent anywhere except Anthropic.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    <div class="btn-row">
+      <button id="saveApiKeyBtn" class="btn btn-primary">Save</button>
+      <button id="cancelApiKeyBtn" class="btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   Newsletter Studio — Go To 11
+   ========================================================================== */
+
+const STORE_KEY    = 'newsletterStudio_v1';
+const APIKEY_KEY   = 'newsletterStudio_apikey';
+const LI_STORE_KEY = 'linkedinStudio_v1'; // matches LinkedIn Studio
+
+const state = {
+  step: 1,
+  mode: 'fresh',           // fresh | repurpose | expand
+  format: 'adviser',
+  seed: '',
+  sourceLinkedIn: null,    // { id, post, hook, ... } or pasted text wrapped
+  subjects: [],            // [{angle, subject, preview, subjLen, prevLen}]
+  selectedSubjectIdx: null,
+  outline: null,           // [{title, key, text}]
+  draft: null,             // [{title, key, text}]
+  cta: 'Reply trigger',
+  checklist: new Array(12).fill(false),
+  editingId: null,         // id of tracker entry being edited (null = new draft)
+};
+
+const SECTION_KEYS = [
+  { key: 'open',    title: 'Cold open' },
+  { key: 'reframe', title: 'Reframe' },
+  { key: 'pattern', title: 'The pattern' },
+  { key: 'move',    title: 'Practical move' },
+  { key: 'close',   title: 'Close' },
+];
+
+const CHECKLIST_ITEMS = [
+  "Subject line passes the curiosity test — would you open it from someone else",
+  "Preview text extends the subject, never restates it",
+  "Cold open is a scene the reader has lived through",
+  "Reframe is in the first third, not buried",
+  "The pattern section adds something the LinkedIn version couldn't carry",
+  "At least one t-shirt line — a standalone pull quote",
+  "Practical move is concrete, tied to a specific meeting or moment",
+  "Close lands in one line, no exit ramp",
+  "CTA is one of the six approved types, not a hard sell",
+  "Canadian English throughout (favour, organisation, behaviour, colour)",
+  "No em dashes anywhere, including the UI",
+  "600 to 900 words, sounds like a letter from a trusted adviser, not a broadcast",
+];
+
+const SYSTEM_PROMPT = `You are ghostwriting an email newsletter for Kenny Solway, founder of Go To 11 Communication Training. He is a Decision Acceleration Partner. NEVER frame him as a presentation coach, public speaking trainer, storytelling expert, or motivational speaker.
+
+VOICE: Canadian English. No em dashes anywhere. Short sentences and longer ones in deliberate rhythm. Confident but warm. Reflective and observational. No buzzwords (leverage, synergy, unlock). No newsletter clichés (hey friend, hope you're well, quick one for you). Sounds like a real adviser thinking out loud.
+
+NEWSLETTER FORMAT — The Adviser Letter (default skeleton):
+1. Cold open scene
+2. Reframe (what people think vs what you actually see)
+3. The pattern (the meat — go deeper than a LinkedIn post would)
+4. Practical move (concrete, tied to a specific meeting or moment)
+5. Close (one line that lands)
+
+LENGTH: 600 to 900 words total for the body.
+
+NEWSLETTER-SPECIFIC RULES:
+- Newsletters earn their length by adding depth the LinkedIn version couldn't carry
+- The pattern section is where the value sits
+- Always include a practical move tied to a specific meeting or moment
+- Slightly more candid and personal than LinkedIn, like a letter from a trusted adviser
+- Never refer to anyone Kenny has worked with as "he" or "she" — always "they"
+
+THREE PILLARS to weave in naturally: People (audience dynamics), Process (frameworks), Presentation (delivery in the room).
+
+TWO THREADS (at least one per send):
+- Confidence: preparation → clarity → confidence → trust → approval
+- Cost: unclear communication has quantifiable costs
+
+CRAFT PRINCIPLES:
+- T-shirt test: at least one line works as a standalone pull quote
+- Order of revelation: hook the reader with the right frame first
+- Steal thunder: name who this is not for
+- Anti-hype: let logic persuade, not volume
+- Bucket brigades: 1 to 2 short bridge phrases at transition points
+
+NEVER frame Kenny as a presentation coach, speaker trainer, storytelling expert, or motivational speaker.`;
+
+const FORMAT_INSTRUCTIONS = {
+  adviser:    "Use the default Adviser Letter format.",
+  framework:  "Use the Framework Deep-Dive format. Name the framework, walk through its parts with examples, and end with how to apply it in the next meeting.",
+  client:     "Use the Client Pattern format. Open with an anonymised scene from real client work, surface the pattern, draw the lesson, and ground it in proof.",
+  field:      "Use the Field Notes format. Three short observations from the week, each with a one-line lesson. Tighter than a usual newsletter.",
+  contrarian: "Use the Contrarian Take format. State the common belief, dismantle it without being smug, and offer the better frame.",
+};
+
+/* ───── Storage ───── */
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function save(data) { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+function getEntries() { return (load().entries || []); }
+function setEntries(entries) {
+  const data = load();
+  data.entries = entries;
+  save(data);
+}
+function loadLinkedInPosts() {
+  try {
+    const raw = localStorage.getItem(LI_STORE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return parsed.posts || parsed.entries || [];
+  } catch { return []; }
+}
+
+/* ───── API key modal ───── */
+function getApiKey() { return localStorage.getItem(APIKEY_KEY) || ''; }
+function refreshApiKeyBtn() {
+  const btn = document.getElementById('apiKeyBtn');
+  if (getApiKey()) {
+    btn.textContent = 'API key set';
+    btn.classList.add('connected');
+  } else {
+    btn.textContent = 'Add API key';
+    btn.classList.remove('connected');
+  }
+}
+document.getElementById('apiKeyBtn').addEventListener('click', () => {
+  document.getElementById('apiKeyInput').value = getApiKey();
+  document.getElementById('apiKeyModal').classList.add('show');
+});
+document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
+  const v = document.getElementById('apiKeyInput').value.trim();
+  if (v) localStorage.setItem(APIKEY_KEY, v);
+  document.getElementById('apiKeyModal').classList.remove('show');
+  refreshApiKeyBtn();
+});
+document.getElementById('cancelApiKeyBtn').addEventListener('click', () => {
+  document.getElementById('apiKeyModal').classList.remove('show');
+});
+
+/* ───── Step indicator ───── */
+function renderSteps() {
+  const labels = ['Source', 'Subject', 'Outline', 'Draft'];
+  const el = document.getElementById('stepIndicator');
+  el.innerHTML = '';
+  labels.forEach((label, i) => {
+    const num = i + 1;
+    const node = document.createElement('div');
+    node.className = 'step-node';
+    const cls = num === state.step ? 'active' : (num < state.step ? 'done' : '');
+    node.innerHTML = `<div class="step-circle ${cls}">${num}</div><div class="step-name ${num===state.step?'active':''}">${label}</div>`;
+    el.appendChild(node);
+    if (num < labels.length) {
+      const c = document.createElement('div');
+      c.className = 'step-connector';
+      el.appendChild(c);
+    }
+  });
+}
+
+function showStep(n) {
+  state.step = n;
+  ['step1','step2','step3','step4'].forEach((id, i) => {
+    document.getElementById(id).classList.toggle('hidden', (i+1) !== n);
+  });
+  renderSteps();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ───── Mode + format selectors ───── */
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.mode = card.dataset.mode;
+    document.getElementById('freshInput').classList.toggle('hidden', state.mode !== 'fresh');
+    document.getElementById('repurposeInput').classList.toggle('hidden', state.mode !== 'repurpose');
+    document.getElementById('expandInput').classList.toggle('hidden', state.mode !== 'expand');
+    if (state.mode === 'repurpose') renderLinkedInPosts();
+  });
+});
+
+document.querySelectorAll('.format-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.format = card.dataset.format;
+  });
+});
+
+function renderLinkedInPosts() {
+  const list = document.getElementById('liPostList');
+  const posts = loadLinkedInPosts();
+  if (!posts.length) {
+    list.innerHTML = `<div class="empty-state" style="padding:1.25rem">No LinkedIn posts found in this browser. Paste a post in the box below instead.</div>`;
+    return;
+  }
+  list.innerHTML = '';
+  posts.slice(0, 25).forEach(post => {
+    const item = document.createElement('div');
+    item.className = 'li-post-item';
+    const text = (post.post || post.text || '').slice(0, 120);
+    const dateStr = post.date || (post.id ? new Date(parseInt(post.id)).toLocaleDateString() : '');
+    item.innerHTML = `<div class="li-post-item-preview">${escapeHtml(text)}${(post.post||'').length > 120 ? '...' : ''}</div><div class="li-post-item-meta">${dateStr || ''} · ${post.format || ''}</div>`;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.li-post-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      state.sourceLinkedIn = post;
+    });
+    list.appendChild(item);
+  });
+}
+
+function escapeHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+/* ───── Anthropic API call ───── */
+async function callClaude(userPrompt) {
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error('Add your Anthropic API key first (top right).');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2500,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `API error (${res.status})`);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+function showLoader(stepNum, msg, on) {
+  const l = document.getElementById(`step${stepNum}Loader`);
+  l.querySelector('span').textContent = msg || 'Working...';
+  l.classList.toggle('show', on);
+}
+function showError(stepNum, msg) {
+  const e = document.getElementById(`step${stepNum}Error`);
+  if (!msg) { e.style.display = 'none'; return; }
+  e.textContent = msg;
+  e.style.display = 'block';
+}
+
+/* ───── Build the seed for prompts ───── */
+function buildSeed() {
+  if (state.mode === 'fresh') {
+    return document.getElementById('seedText').value.trim();
+  }
+  if (state.mode === 'expand') {
+    return document.getElementById('expandText').value.trim();
+  }
+  if (state.mode === 'repurpose') {
+    if (state.sourceLinkedIn && state.sourceLinkedIn.post) return state.sourceLinkedIn.post;
+    const pasted = document.getElementById('pastedLiPost').value.trim();
+    if (pasted) {
+      state.sourceLinkedIn = { post: pasted };
+      return pasted;
+    }
+    return '';
+  }
+  return '';
+}
+
+/* ───── Step 1 → Subject lines ───── */
+document.getElementById('generateSubjectsBtn').addEventListener('click', async () => {
+  const seed = buildSeed();
+  if (!seed) {
+    showError(1, 'Add an idea, paste a LinkedIn post, or type a topic first.');
+    return;
+  }
+  state.seed = seed;
+  showError(1, '');
+  showLoader(1, 'Drafting subject line options...', true);
+  try {
+    const isRepurpose = state.mode === 'repurpose';
+    const prompt = `${FORMAT_INSTRUCTIONS[state.format]}
+
+${isRepurpose ? 'Kenny is repurposing this LinkedIn post as a longer newsletter:' : 'Kenny\\'s seed:'}
+"""
+${seed}
+"""
+
+Generate exactly 5 subject line options for the email newsletter, each in a different angle:
+1. Curiosity gap
+2. Contrarian frame
+3. Specific number or result
+4. Direct question
+5. Observation tease
+
+For each, also write a preview text line that EXTENDS the subject (never restates it).
+
+Format your response as exactly:
+ANGLE: Curiosity gap
+SUBJECT: <subject line, under 50 characters>
+PREVIEW: <preview text, under 90 characters>
+
+ANGLE: Contrarian frame
+SUBJECT: ...
+PREVIEW: ...
+
+(and so on for all 5)
+
+No preamble, no other text. Canadian English. No em dashes.`;
+
+    const text = await callClaude(prompt);
+    state.subjects = parseSubjects(text);
+    if (state.subjects.length === 0) throw new Error('Could not parse subject lines. Try again.');
+    state.selectedSubjectIdx = null;
+    renderSubjects();
+    showStep(2);
+  } catch (e) {
+    showError(1, e.message);
+  } finally {
+    showLoader(1, '', false);
+  }
+});
+
+function parseSubjects(text) {
+  const blocks = text.split(/\n\s*\n/).filter(b => /SUBJECT:/i.test(b));
+  return blocks.map(b => {
+    const angle   = (b.match(/ANGLE:\s*(.+)/i)   || [,''])[1].trim();
+    const subject = (b.match(/SUBJECT:\s*(.+)/i) || [,''])[1].trim();
+    const preview = (b.match(/PREVIEW:\s*(.+)/i) || [,''])[1].trim();
+    return { angle, subject, preview };
+  }).filter(s => s.subject);
+}
+
+function renderSubjects() {
+  const wrap = document.getElementById('subjectCards');
+  wrap.innerHTML = '';
+  state.subjects.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'subject-card' + (state.selectedSubjectIdx === i ? ' selected' : '');
+    const subjMax = 50, prevMax = 90;
+    const subjLen = s.subject.length, prevLen = s.preview.length;
+    card.innerHTML = `
+      <div class="subject-tag">${escapeHtml(s.angle)}</div>
+      <div class="subject-line" contenteditable="true" data-i="${i}" data-f="subject">${escapeHtml(s.subject)}</div>
+      <div class="subject-preview" contenteditable="true" data-i="${i}" data-f="preview">${escapeHtml(s.preview)}</div>
+      <div class="subject-counts">
+        <span class="${subjLen>subjMax?'wc over':''}">Subject: ${subjLen}/${subjMax}</span>
+        &nbsp;·&nbsp;
+        <span class="${prevLen>prevMax?'wc over':''}">Preview: ${prevLen}/${prevMax}</span>
+      </div>`;
+    card.addEventListener('click', (e) => {
+      if (e.target.isContentEditable) return;
+      state.selectedSubjectIdx = i;
+      renderSubjects();
+      document.getElementById('toOutlineBtn').disabled = false;
+    });
+    wrap.appendChild(card);
+  });
+  // Wire inline editing
+  wrap.querySelectorAll('[contenteditable]').forEach(el => {
+    el.addEventListener('input', () => {
+      const i = +el.dataset.i, f = el.dataset.f;
+      state.subjects[i][f] = el.textContent;
+      // Update counters live
+      const card = el.closest('.subject-card');
+      const counts = card.querySelector('.subject-counts');
+      const s = state.subjects[i];
+      const subjMax = 50, prevMax = 90;
+      counts.innerHTML = `
+        <span class="${s.subject.length>subjMax?'wc over':''}">Subject: ${s.subject.length}/${subjMax}</span>
+        &nbsp;·&nbsp;
+        <span class="${s.preview.length>prevMax?'wc over':''}">Preview: ${s.preview.length}/${prevMax}</span>`;
+    });
+  });
+}
+
+document.getElementById('regenSubjectsBtn').addEventListener('click', () => {
+  document.getElementById('generateSubjectsBtn').click();
+});
+document.getElementById('backTo1Btn').addEventListener('click', () => showStep(1));
+
+/* ───── Step 2 → Outline ───── */
+document.getElementById('toOutlineBtn').addEventListener('click', async () => {
+  if (state.selectedSubjectIdx == null) return;
+  showError(2, '');
+  showLoader(2, 'Building the outline...', true);
+  try {
+    state.outline = await generateOutline();
+    renderOutline();
+    showStep(3);
+  } catch (e) {
+    showError(2, e.message);
+  } finally {
+    showLoader(2, '', false);
+  }
+});
+
+async function generateOutline() {
+  const subj = state.subjects[state.selectedSubjectIdx];
+  const prompt = `${FORMAT_INSTRUCTIONS[state.format]}
+
+Kenny's seed: "${state.seed}"
+Chosen subject: "${subj.subject}"
+Chosen preview: "${subj.preview}"
+${state.sourceLinkedIn ? `Repurposed from LinkedIn post: "${(state.sourceLinkedIn.post || '').slice(0, 400)}"` : ''}
+
+Build an outline for the newsletter with these 5 sections, each as 1 to 2 sentence stubs:
+1. Cold open (a scene the reader has lived through)
+2. Reframe (what people think vs what Kenny actually sees)
+3. The pattern (the meat — note 2 to 3 specific points to expand in the draft)
+4. Practical move (concrete action tied to a specific meeting or moment)
+5. Close (a single line that lands)
+
+Format your response as exactly:
+COLD_OPEN: <stub>
+REFRAME: <stub>
+PATTERN: <stub>
+MOVE: <stub>
+CLOSE: <stub>
+
+No preamble, no other text. Canadian English. No em dashes.`;
+
+  const text = await callClaude(prompt);
+  return parseOutline(text);
+}
+
+function parseOutline(text) {
+  const get = (k) => (text.match(new RegExp(`${k}:\\s*([\\s\\S]*?)(?=\\n[A-Z_]+:|$)`, 'i')) || [,''])[1].trim();
+  return [
+    { key: 'open',    title: 'Cold open',     text: get('COLD_OPEN') },
+    { key: 'reframe', title: 'Reframe',       text: get('REFRAME') },
+    { key: 'pattern', title: 'The pattern',   text: get('PATTERN') },
+    { key: 'move',    title: 'Practical move',text: get('MOVE') },
+    { key: 'close',   title: 'Close',         text: get('CLOSE') },
+  ];
+}
+
+function renderOutline() {
+  const wrap = document.getElementById('outlineSections');
+  wrap.innerHTML = '';
+  state.outline.forEach((sec, i) => {
+    const div = document.createElement('div');
+    div.className = 'outline-section';
+    div.innerHTML = `
+      <div class="outline-section-header">
+        <div class="outline-section-title">${sec.title}</div>
+        <button class="btn btn-sm" data-regen="${i}">Regenerate</button>
+      </div>
+      <textarea class="outline-section-text" rows="2" data-i="${i}">${escapeHtml(sec.text)}</textarea>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('textarea[data-i]').forEach(t => {
+    t.addEventListener('input', () => { state.outline[+t.dataset.i].text = t.value; });
+  });
+  wrap.querySelectorAll('[data-regen]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const i = +b.dataset.regen;
+      showError(3, '');
+      showLoader(3, `Regenerating ${state.outline[i].title}...`, true);
+      try {
+        const sec = state.outline[i];
+        const prompt = `Kenny's seed: "${state.seed}"
+Chosen subject: "${state.subjects[state.selectedSubjectIdx].subject}"
+${FORMAT_INSTRUCTIONS[state.format]}
+
+Rewrite ONLY the "${sec.title}" section of this newsletter outline. Give me a single new 1 to 2 sentence stub. No labels, no preamble. Canadian English. No em dashes.`;
+        const newText = await callClaude(prompt);
+        state.outline[i].text = newText.trim();
+        renderOutline();
+      } catch (e) { showError(3, e.message); }
+      finally { showLoader(3, '', false); }
+    });
+  });
+}
+
+document.getElementById('regenOutlineBtn').addEventListener('click', async () => {
+  showError(3, '');
+  showLoader(3, 'Rebuilding the outline...', true);
+  try {
+    state.outline = await generateOutline();
+    renderOutline();
+  } catch (e) { showError(3, e.message); }
+  finally { showLoader(3, '', false); }
+});
+document.getElementById('backTo2Btn').addEventListener('click', () => showStep(2));
+
+/* ───── Step 3 → Full draft ───── */
+document.getElementById('writeDraftBtn').addEventListener('click', async () => {
+  showError(3, '');
+  showLoader(3, 'Writing the full draft...', true);
+  try {
+    state.draft = await generateDraft();
+    renderDraft();
+    renderChecklist();
+    showStep(4);
+  } catch (e) { showError(3, e.message); }
+  finally { showLoader(3, '', false); }
+});
+
+async function generateDraft() {
+  const subj = state.subjects[state.selectedSubjectIdx];
+  const outlineStr = state.outline.map(s => `${s.title.toUpperCase()}: ${s.text}`).join('\n');
+  const prompt = `${FORMAT_INSTRUCTIONS[state.format]}
+
+Kenny's seed: "${state.seed}"
+Subject: "${subj.subject}"
+Preview: "${subj.preview}"
+${state.sourceLinkedIn ? `Repurposed from LinkedIn post: "${(state.sourceLinkedIn.post || '').slice(0, 600)}"` : ''}
+
+Approved outline:
+${outlineStr}
+
+Write the full newsletter following this outline. Target 600 to 900 words for the body (the 5 sections combined, not counting the subject or preview). Canadian English. No em dashes anywhere.
+
+Output the 5 sections labelled exactly like this, with the section text as flowing prose underneath each label:
+
+## Cold open
+<paragraphs>
+
+## Reframe
+<paragraphs>
+
+## The pattern
+<paragraphs>
+
+## Practical move
+<paragraphs>
+
+## Close
+<paragraph or single line>
+
+No preamble, no closing notes, no sign-off. Just the 5 labelled sections.`;
+
+  const text = await callClaude(prompt);
+  return parseDraft(text);
+}
+
+function parseDraft(text) {
+  const sections = [];
+  const re = /##\s*(.+?)\n([\s\S]*?)(?=\n##\s|$)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const title = m[1].trim();
+    const body  = m[2].trim();
+    const key = title.toLowerCase().includes('open') ? 'open'
+              : title.toLowerCase().includes('reframe') ? 'reframe'
+              : title.toLowerCase().includes('pattern') ? 'pattern'
+              : title.toLowerCase().includes('move')    ? 'move'
+              : 'close';
+    sections.push({ key, title, text: body });
+  }
+  if (sections.length === 0) {
+    // fallback: stuff it all into one section
+    return [{ key: 'open', title: 'Newsletter', text: text.trim() }];
+  }
+  return sections;
+}
+
+function renderDraft() {
+  const wrap = document.getElementById('draftSections');
+  wrap.innerHTML = '';
+  state.draft.forEach((sec, i) => {
+    const wc = wordCount(sec.text);
+    const div = document.createElement('div');
+    div.className = 'draft-section';
+    div.innerHTML = `
+      <div class="draft-section-header">
+        <div class="draft-section-title">${escapeHtml(sec.title)}</div>
+        <div class="draft-section-meta"><span class="wc">${wc} words</span></div>
+      </div>
+      <textarea class="draft-section-text" rows="6" data-i="${i}">${escapeHtml(sec.text)}</textarea>`;
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('textarea[data-i]').forEach(t => {
+    autoResize(t);
+    t.addEventListener('input', () => {
+      state.draft[+t.dataset.i].text = t.value;
+      autoResize(t);
+      const meta = t.parentElement.querySelector('.wc');
+      meta.textContent = `${wordCount(t.value)} words`;
+      updateTotalWordCount();
+    });
+  });
+  updateTotalWordCount();
+}
+
+function autoResize(t) {
+  t.style.height = 'auto';
+  t.style.height = (t.scrollHeight + 4) + 'px';
+}
+
+function wordCount(s) {
+  return (s || '').trim().split(/\s+/).filter(Boolean).length;
+}
+function totalWords() {
+  return state.draft.reduce((n, s) => n + wordCount(s.text), 0);
+}
+function updateTotalWordCount() {
+  const w = totalWords();
+  const el = document.getElementById('totalWordCount');
+  el.textContent = `${w} words total`;
+  el.classList.remove('good','over');
+  if (w >= 600 && w <= 900) el.classList.add('good');
+  if (w > 1000) el.classList.add('over');
+}
+
+function renderChecklist() {
+  const wrap = document.getElementById('checklistEl');
+  wrap.innerHTML = '';
+  CHECKLIST_ITEMS.forEach((item, i) => {
+    const row = document.createElement('label');
+    row.className = 'check-item' + (state.checklist[i] ? ' done' : '');
+    row.innerHTML = `<input type="checkbox" ${state.checklist[i]?'checked':''}><span>${item}</span>`;
+    row.querySelector('input').addEventListener('change', e => {
+      state.checklist[i] = e.target.checked;
+      row.classList.toggle('done', e.target.checked);
+    });
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById('backTo3Btn').addEventListener('click', () => showStep(3));
+document.getElementById('startOverBtn').addEventListener('click', () => {
+  if (!confirm('Start a fresh newsletter?')) return;
+  Object.assign(state, {
+    step: 1, mode: 'fresh', format: 'adviser', seed: '',
+    sourceLinkedIn: null, subjects: [], selectedSubjectIdx: null,
+    outline: null, draft: null, cta: 'Reply trigger',
+    checklist: new Array(12).fill(false), editingId: null,
+  });
+  document.getElementById('seedText').value = '';
+  document.getElementById('expandText').value = '';
+  document.getElementById('pastedLiPost').value = '';
+  document.querySelectorAll('.mode-card').forEach((c, i) => c.classList.toggle('selected', i === 0));
+  document.querySelectorAll('.format-card').forEach((c, i) => c.classList.toggle('selected', i === 0));
+  document.getElementById('freshInput').classList.remove('hidden');
+  document.getElementById('repurposeInput').classList.add('hidden');
+  document.getElementById('expandInput').classList.add('hidden');
+  showStep(1);
+});
+
+/* ───── Copy + Tighten + Rewrite ───── */
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const subj = state.subjects[state.selectedSubjectIdx];
+  const text = `Subject: ${subj.subject}\nPreview: ${subj.preview}\n\n` +
+    state.draft.map(s => s.text).join('\n\n');
+  navigator.clipboard.writeText(text);
+  flashSuccess(4, 'Copied. Subject line and preview text included at the top.');
+});
+
+document.getElementById('tightenBtn').addEventListener('click', async () => {
+  showError(4, '');
+  showLoader(4, 'Tightening every section...', true);
+  try {
+    const fullText = state.draft.map(s => `## ${s.title}\n${s.text}`).join('\n\n');
+    const prompt = `Tighten this newsletter without losing the substance. Remove every word that does not earn its place. Keep Kenny's voice, the section structure, and the same length range (600 to 900 words for the body). Canadian English. No em dashes.
+
+${fullText}
+
+Return the full newsletter in the same format with the same 5 ## section labels.`;
+    const text = await callClaude(prompt);
+    state.draft = parseDraft(text);
+    renderDraft();
+    flashSuccess(4, 'Tightened.');
+  } catch (e) { showError(4, e.message); }
+  finally { showLoader(4, '', false); }
+});
+
+document.getElementById('rewriteSectionBtn').addEventListener('click', async () => {
+  const titles = state.draft.map((s, i) => `${i+1}. ${s.title}`).join('\n');
+  const choice = prompt(`Rewrite which section?\n\n${titles}\n\nEnter the number:`);
+  const idx = parseInt(choice, 10) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= state.draft.length) return;
+  showError(4, '');
+  showLoader(4, `Rewriting "${state.draft[idx].title}"...`, true);
+  try {
+    const sec = state.draft[idx];
+    const others = state.draft.filter((_, i) => i !== idx).map(s => `## ${s.title}\n${s.text}`).join('\n\n');
+    const promptText = `Rewrite ONLY the "${sec.title}" section of this newsletter. Keep the same intent and outline beat but try a fresh approach. Canadian English. No em dashes.
+
+Subject: "${state.subjects[state.selectedSubjectIdx].subject}"
+
+Other sections of the newsletter (for context, do not rewrite these):
+${others}
+
+Current "${sec.title}" section:
+${sec.text}
+
+Return ONLY the new section text, no labels, no preamble.`;
+    const text = await callClaude(promptText);
+    state.draft[idx].text = text.trim();
+    renderDraft();
+    flashSuccess(4, `Rewrote "${sec.title}".`);
+  } catch (e) { showError(4, e.message); }
+  finally { showLoader(4, '', false); }
+});
+
+function flashSuccess(stepNum, msg) {
+  const el = document.getElementById(`step${stepNum}Success`);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+document.getElementById('ctaSelect').addEventListener('change', e => { state.cta = e.target.value; });
+
+/* ───── Save to tracker ───── */
+document.getElementById('saveTrackerBtn').addEventListener('click', () => {
+  const subj = state.subjects[state.selectedSubjectIdx];
+  const entries = getEntries();
+  const id = state.editingId || String(Date.now());
+  const entry = {
+    id,
+    createdAt: new Date().toISOString(),
+    sendDate: null,
+    status: 'draft',
+    seed: state.seed,
+    mode: state.mode,
+    format: state.format,
+    sourceLinkedIn: state.sourceLinkedIn ? (state.sourceLinkedIn.post || '').slice(0, 400) : null,
+    subject: subj.subject,
+    preview: subj.preview,
+    angle: subj.angle,
+    body: state.draft.map(s => `## ${s.title}\n${s.text}`).join('\n\n'),
+    cta: state.cta,
+    metrics: { sends: null, opens: null, clicks: null, replies: null, unsubscribes: null, bounces: null },
+    notionPageId: null,
+    campaignUrl: null,
+  };
+  const existing = entries.findIndex(e => e.id === id);
+  if (existing >= 0) entries[existing] = entry;
+  else entries.unshift(entry);
+  setEntries(entries);
+  state.editingId = id;
+  renderTracker();
+  flashSuccess(4, 'Saved to tracker. Find it below.');
+});
+
+/* ───── Tracker rendering ───── */
+function renderTracker() {
+  const entries = getEntries();
+  renderSummary(entries);
+  const wrap = document.getElementById('trackerBody');
+  if (!entries.length) {
+    wrap.innerHTML = `<div class="empty-state">No newsletters yet. Save your first draft above.</div>`;
+    return;
+  }
+  let html = `<table class="tracker-table"><thead><tr>
+    <th>Sent</th><th>Subject</th><th>Format</th><th>Sends</th><th>Open %</th><th>Click %</th><th>Replies</th><th>Unsub</th>
+  </tr></thead><tbody>`;
+  entries.forEach(e => {
+    const m = e.metrics || {};
+    const openRate = (m.sends && m.opens != null) ? ((m.opens / m.sends) * 100).toFixed(1) : '—';
+    const clickRate = (m.sends && m.clicks != null) ? ((m.clicks / m.sends) * 100).toFixed(1) : '—';
+    const flags = [];
+    if (m.sends && m.opens != null && (m.opens / m.sends) > 0.45) flags.push('flag-high');
+    if (m.sends && m.clicks != null && (m.clicks / m.sends) > 0.03) flags.push('flag-exceptional');
+    if ((m.replies || 0) > 5) flags.push('flag-conversation');
+    html += `<tr class="tracker-row ${flags.join(' ')}" data-id="${e.id}">
+      <td>${e.sendDate || '<span style="color:var(--text-muted)">draft</span>'}</td>
+      <td>${escapeHtml(e.subject || '')}</td>
+      <td>${formatLabel(e.format)}</td>
+      <td>${m.sends ?? '—'}</td>
+      <td>${openRate}${openRate!=='—'?'%':''}</td>
+      <td>${clickRate}${clickRate!=='—'?'%':''}</td>
+      <td>${m.replies ?? '—'}</td>
+      <td>${m.unsubscribes ?? '—'}</td>
+    </tr><tr class="row-detail-row hidden" data-detail="${e.id}"><td colspan="8"><div class="row-detail" id="detail-${e.id}"></div></td></tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.tracker-row').forEach(row => {
+    row.addEventListener('click', () => toggleDetail(row.dataset.id));
+  });
+}
+
+function formatLabel(f) {
+  return ({adviser:'Adviser Letter', framework:'Framework', client:'Client Pattern', field:'Field Notes', contrarian:'Contrarian'})[f] || f;
+}
+
+function renderSummary(entries) {
+  const sent = entries.filter(e => e.status === 'sent' && e.metrics && e.metrics.sends);
+  const totalSent = sent.length;
+  const avgOpen = sent.length ? (sent.reduce((a, e) => a + (e.metrics.opens / e.metrics.sends), 0) / sent.length * 100).toFixed(1) : '—';
+  const avgClick = sent.length ? (sent.reduce((a, e) => a + ((e.metrics.clicks || 0) / e.metrics.sends), 0) / sent.length * 100).toFixed(1) : '—';
+  let bestSubj = '—';
+  if (sent.length) {
+    const best = sent.reduce((b, e) => ((e.metrics.opens / e.metrics.sends) > (b.metrics.opens / b.metrics.sends) ? e : b), sent[0]);
+    bestSubj = (best.subject || '').slice(0, 28) + ((best.subject || '').length > 28 ? '...' : '');
+  }
+  const totalReplies = sent.reduce((a, e) => a + (e.metrics.replies || 0), 0);
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-cell"><div class="summary-cell-label">Sent</div><div class="summary-cell-value">${totalSent}</div></div>
+    <div class="summary-cell"><div class="summary-cell-label">Avg open</div><div class="summary-cell-value">${avgOpen}${avgOpen!=='—'?'%':''}</div></div>
+    <div class="summary-cell"><div class="summary-cell-label">Avg click</div><div class="summary-cell-value">${avgClick}${avgClick!=='—'?'%':''}</div></div>
+    <div class="summary-cell"><div class="summary-cell-label">Replies</div><div class="summary-cell-value">${totalReplies}</div></div>
+    <div class="summary-cell"><div class="summary-cell-label">Best subject</div><div class="summary-cell-value" style="font-size:13px">${escapeHtml(bestSubj)}</div></div>`;
+}
+
+function toggleDetail(id) {
+  const detailRow = document.querySelector(`tr[data-detail="${id}"]`);
+  const detail = document.getElementById(`detail-${id}`);
+  if (!detailRow.classList.contains('hidden')) {
+    detailRow.classList.add('hidden');
+    return;
+  }
+  document.querySelectorAll('.row-detail-row').forEach(r => r.classList.add('hidden'));
+  const e = getEntries().find(x => x.id === id);
+  if (!e) return;
+  const m = e.metrics || {};
+  detail.innerHTML = `
+    <h4>Subject &amp; preview</h4>
+    <div><strong>${escapeHtml(e.subject || '')}</strong></div>
+    <div style="color:var(--text-muted)">${escapeHtml(e.preview || '')}</div>
+
+    <h4>Body</h4>
+    <div>${escapeHtml(e.body || '').replace(/\n/g, '<br>')}</div>
+
+    ${e.sourceLinkedIn ? `<h4>Repurposed from LinkedIn post</h4><div>${escapeHtml(e.sourceLinkedIn)}</div>` : ''}
+
+    <h4>Metrics</h4>
+    <div>Sends: ${m.sends ?? '—'} · Opens: ${m.opens ?? '—'} · Clicks: ${m.clicks ?? '—'} · Replies: ${m.replies ?? '—'} · Unsub: ${m.unsubscribes ?? '—'} · Bounces: ${m.bounces ?? '—'}</div>
+
+    <h4>Update</h4>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">
+      <input type="date" id="d-${id}-date" value="${e.sendDate || ''}" placeholder="Send date">
+      <input type="number" id="d-${id}-sends" value="${m.sends ?? ''}" placeholder="Sends">
+      <input type="number" id="d-${id}-opens" value="${m.opens ?? ''}" placeholder="Opens">
+      <input type="number" id="d-${id}-clicks" value="${m.clicks ?? ''}" placeholder="Clicks">
+      <input type="number" id="d-${id}-replies" value="${m.replies ?? ''}" placeholder="Replies">
+      <input type="number" id="d-${id}-unsub" value="${m.unsubscribes ?? ''}" placeholder="Unsub">
+      <input type="url" id="d-${id}-url" value="${e.campaignUrl || ''}" placeholder="MailChimp campaign URL" style="grid-column:span 3">
+    </div>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn btn-sm btn-primary" data-act="save" data-id="${id}">Save</button>
+      <button class="btn btn-sm" data-act="markSent" data-id="${id}">Mark sent</button>
+      <button class="btn btn-sm" data-act="edit" data-id="${id}">Load to editor</button>
+      <button class="btn btn-sm" data-act="notion" data-id="${id}">Push to Notion</button>
+      <button class="btn btn-sm" data-act="delete" data-id="${id}">Delete</button>
+    </div>
+    <div id="detail-msg-${id}" style="margin-top:8px;font-size:12px;color:var(--text-muted)"></div>
+  `;
+  detailRow.classList.remove('hidden');
+
+  // Wire detail buttons
+  detail.querySelectorAll('[data-act]').forEach(b => {
+    b.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const act = b.dataset.act, eid = b.dataset.id;
+      if (act === 'save')      saveDetail(eid);
+      if (act === 'markSent')  markSent(eid);
+      if (act === 'edit')      loadToEditor(eid);
+      if (act === 'notion')    pushToNotion(eid);
+      if (act === 'delete')    deleteEntry(eid);
+    });
+  });
+}
+
+function getEntry(id) { return getEntries().find(e => e.id === id); }
+function updateEntry(id, patch) {
+  const entries = getEntries();
+  const i = entries.findIndex(e => e.id === id);
+  if (i < 0) return;
+  entries[i] = { ...entries[i], ...patch };
+  setEntries(entries);
+}
+
+function saveDetail(id) {
+  const num = (s) => s === '' || s == null ? null : Number(s);
+  const sendDate = document.getElementById(`d-${id}-date`).value || null;
+  const metrics = {
+    sends: num(document.getElementById(`d-${id}-sends`).value),
+    opens: num(document.getElementById(`d-${id}-opens`).value),
+    clicks: num(document.getElementById(`d-${id}-clicks`).value),
+    replies: num(document.getElementById(`d-${id}-replies`).value),
+    unsubscribes: num(document.getElementById(`d-${id}-unsub`).value),
+    bounces: getEntry(id).metrics?.bounces || null,
+  };
+  const campaignUrl = document.getElementById(`d-${id}-url`).value || null;
+  updateEntry(id, { sendDate, metrics, campaignUrl });
+  renderTracker();
+}
+
+function markSent(id) {
+  const sendDate = document.getElementById(`d-${id}-date`).value || new Date().toISOString().slice(0,10);
+  saveDetail(id);
+  updateEntry(id, { status: 'sent', sendDate });
+  renderTracker();
+}
+
+function loadToEditor(id) {
+  const e = getEntry(id);
+  if (!e) return;
+  state.editingId = id;
+  state.seed = e.seed || '';
+  state.mode = e.mode || 'fresh';
+  state.format = e.format || 'adviser';
+  state.sourceLinkedIn = e.sourceLinkedIn ? { post: e.sourceLinkedIn } : null;
+  state.subjects = [{ angle: e.angle || 'Custom', subject: e.subject || '', preview: e.preview || '' }];
+  state.selectedSubjectIdx = 0;
+  state.cta = e.cta || 'Reply trigger';
+  document.getElementById('ctaSelect').value = state.cta;
+  state.draft = parseDraft(e.body || '');
+  if (state.draft.length === 0) state.draft = [{ key: 'open', title: 'Newsletter', text: e.body || '' }];
+  renderDraft();
+  renderChecklist();
+  showStep(4);
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this newsletter from the tracker?')) return;
+  setEntries(getEntries().filter(e => e.id !== id));
+  renderTracker();
+}
+
+async function pushToNotion(id) {
+  const msg = document.getElementById(`detail-msg-${id}`);
+  msg.textContent = 'Pushing to Notion...';
+  const e = getEntry(id);
+  try {
+    const res = await fetch('/api/newsletter-sync', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        subject: e.subject,
+        preview: e.preview,
+        body: e.body,
+        seed: e.seed,
+        sourceLinkedIn: e.sourceLinkedIn,
+        format: e.format,
+        cta: e.cta,
+        sendDate: e.sendDate,
+        status: e.status,
+        campaignUrl: e.campaignUrl,
+        metrics: e.metrics,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Notion sync failed');
+    updateEntry(id, { notionPageId: data.pageId });
+    msg.innerHTML = `Pushed. <a href="${data.url}" target="_blank" style="color:var(--purple)">Open in Notion</a>`;
+  } catch (err) {
+    msg.textContent = 'Failed: ' + err.message;
+  }
+}
+
+/* ───── MailChimp CSV import ───── */
+document.getElementById('csvImportBtn').addEventListener('click', () => {
+  document.getElementById('csvImportPanel').classList.toggle('hidden');
+});
+document.getElementById('csvCloseBtn').addEventListener('click', () => {
+  document.getElementById('csvImportPanel').classList.add('hidden');
+});
+
+document.getElementById('csvFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const status = document.getElementById('csvStatus');
+  try {
+    const rows = parseCsv(text);
+    const matched = applyCsvMetrics(rows);
+    status.textContent = `Imported ${matched.matched} of ${matched.total} rows. ${matched.unmatched} unmatched.`;
+    renderTracker();
+  } catch (err) {
+    status.textContent = 'CSV parse failed: ' + err.message;
+  }
+});
+
+function parseCsv(text) {
+  // Robust enough for MailChimp's standard exports — supports quoted fields with commas.
+  const lines = text.split(/\r?\n/).filter(l => l.length);
+  if (lines.length < 2) return [];
+  const splitRow = (row) => {
+    const out = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < row.length; i++) {
+      const ch = row[i];
+      if (ch === '"' && row[i+1] === '"') { cur += '"'; i++; continue; }
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { out.push(cur); cur = ''; continue; }
+      cur += ch;
+    }
+    out.push(cur);
+    return out;
+  };
+  const headers = splitRow(lines[0]).map(h => h.trim().toLowerCase());
+  return lines.slice(1).map(line => {
+    const cells = splitRow(line);
+    const row = {};
+    headers.forEach((h, i) => { row[h] = (cells[i] || '').trim(); });
+    return row;
+  });
+}
+
+function applyCsvMetrics(rows) {
+  const entries = getEntries();
+  let matched = 0, unmatched = 0;
+  // Try to find common MailChimp column variants
+  const findCol = (row, candidates) => {
+    for (const c of candidates) {
+      for (const k of Object.keys(row)) {
+        if (k.includes(c)) return row[k];
+      }
+    }
+    return null;
+  };
+  rows.forEach(r => {
+    const subject = findCol(r, ['subject']);
+    if (!subject) { unmatched++; return; }
+    const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const idx = entries.findIndex(e => norm(e.subject) && norm(e.subject) === norm(subject));
+    if (idx < 0) { unmatched++; return; }
+    const num = (s) => {
+      if (s == null || s === '') return null;
+      const n = parseFloat(String(s).replace(/[%,]/g, ''));
+      return isNaN(n) ? null : n;
+    };
+    const sends = num(findCol(r, ['successful deliveries','sends','total sent','recipients']));
+    const opens = num(findCol(r, ['unique opens','opens']));
+    const clicks = num(findCol(r, ['unique clicks','clicks']));
+    const unsub = num(findCol(r, ['unsubscribes','unsubs']));
+    const bounces = num(findCol(r, ['bounces','total bounces']));
+    const sendDate = findCol(r, ['send date','sent','send time']) || entries[idx].sendDate;
+    entries[idx].metrics = {
+      ...entries[idx].metrics,
+      sends, opens, clicks, unsubscribes: unsub, bounces,
+    };
+    if (sendDate) {
+      // try to coerce to YYYY-MM-DD
+      const d = new Date(sendDate);
+      if (!isNaN(d.getTime())) entries[idx].sendDate = d.toISOString().slice(0,10);
+    }
+    entries[idx].status = 'sent';
+    matched++;
+  });
+  setEntries(entries);
+  return { matched, unmatched, total: rows.length };
+}
+
+document.getElementById('exportJsonBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(getEntries(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `newsletter-tracker-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ───── Boot ───── */
+refreshApiKeyBtn();
+renderSteps();
+renderTracker();
+</script>
+</body>
+</html>
