@@ -51,15 +51,23 @@ function calcCredits(durationMs, memoryMb = DEFAULT_MEMORY_MB) {
 // Matched longest-prefix-first. Add new model IDs at the top of the list as
 // they ship so they beat the family fallback.
 const ANTHROPIC_PRICING = [
-  // Opus family
+  // Verified against Anthropic's published per-MTok pricing, 2026-08-23.
+  // Order matters: first regex that matches wins, so specific rows come first.
+  // When a new model ships, add a row. Anything unmatched is priced by
+  // FALLBACK_PRICING and says so in the log rather than failing quietly.
+  { match: /^claude-fable-5/,          input: 10.00, output: 50.00 },
+  { match: /^claude-mythos-5/,         input: 10.00, output: 50.00 },
+  { match: /^claude-opus-5/,           input:  5.00, output: 25.00 },
+  { match: /^claude-opus-4-[678]/,     input:  5.00, output: 25.00 },
+  // claude-opus-4-5 is deliberately absent: its rate is not in the reference
+  // used here, and a guess would be silently wrong. It falls through, flagged.
   { match: /^claude-opus-4/,           input: 15.00, output: 75.00 },
   { match: /^claude-3-opus/,           input: 15.00, output: 75.00 },
-  // Sonnet family
+  { match: /^claude-sonnet-5/,         input:  3.00, output: 15.00 },
   { match: /^claude-sonnet-4/,         input:  3.00, output: 15.00 },
   { match: /^claude-3-7-sonnet/,       input:  3.00, output: 15.00 },
   { match: /^claude-3-5-sonnet/,       input:  3.00, output: 15.00 },
   { match: /^claude-3-sonnet/,         input:  3.00, output: 15.00 },
-  // Haiku family
   { match: /^claude-haiku-4/,          input:  1.00, output:  5.00 },
   { match: /^claude-3-5-haiku/,        input:  0.80, output:  4.00 },
   { match: /^claude-3-haiku/,          input:  0.25, output:  1.25 },
@@ -78,6 +86,9 @@ function rateFor(model) {
   for (const r of ANTHROPIC_PRICING) {
     if (r.match.test(model)) return { input: r.input, output: r.output };
   }
+  // A model with no row is priced at the Sonnet fallback, which understates an
+  // Opus or Fable model badly. Say so loudly rather than file a wrong number.
+  console.warn('[cost-logger] no price row for model "' + model + '", using fallback rate. Add it to ANTHROPIC_PRICING.');
   return FALLBACK_PRICING;
 }
 
